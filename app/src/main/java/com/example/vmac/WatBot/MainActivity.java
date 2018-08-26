@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -30,12 +31,9 @@ import com.ibm.watson.developer_cloud.android.library.audio.utils.ContentType;
 import com.ibm.watson.developer_cloud.conversation.v1.Conversation;
 import com.ibm.watson.developer_cloud.conversation.v1.model.InputData;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageOptions;
-import com.ibm.watson.developer_cloud.conversation.v1.model.MessageRequest;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageResponse;
-import com.ibm.watson.developer_cloud.http.ServiceCallback;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabel;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.RecognizeCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
@@ -45,10 +43,6 @@ import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.ibm.watson.developer_cloud.android.library.audio.MicrophoneHelper.REQUEST_PERMISSION;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -71,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean listening = false;
     private SpeechToText speechService;
     private TextToSpeech textToSpeech;
+    private Conversation conversation;
     private MicrophoneInputStream capture;
     private Context mContext;
     private String workspace_id;
@@ -153,12 +148,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
         this.inputMessage.setText("");
         this.initialRequest = true;
-        sendMessage();
+       // sendMessage();
 
 
         //Watson Text-to-Speech Service on Bluemix
         textToSpeech = new TextToSpeech();
         textToSpeech.setUsernameAndPassword(TTS_username, TTS_password);
+
+        conversation = new Conversation(Conversation.VERSION_DATE_2017_05_26);
+        conversation.setUsernameAndPassword(conversation_username, conversation_password);
 
 
         int permission = ContextCompat.checkSelfPermission(this,
@@ -214,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 recordMessage();
+                if(checkInternetConnection()) {
+                    sendMessage();
+                }
             }
         });
     };
@@ -264,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
             inputMessage.setMessage(inputmessage);
             inputMessage.setId("1");
             messageArrayList.add(inputMessage);
-            Toast.makeText(getApplicationContext(), "Sending a message to Watson ....", Toast.LENGTH_SHORT).show();
 
         }
         else
@@ -273,13 +273,23 @@ public class MainActivity extends AppCompatActivity {
             inputMessage.setMessage(inputmessage);
             inputMessage.setId("100");
             this.initialRequest = false;
-            Toast.makeText(getApplicationContext(),"Tap on the message for Voice",Toast.LENGTH_LONG).show();
 
         }
-        myLogger.info("Sending a message to Watson Conversation Service");
-        this.inputMessage.setText("");
-        mAdapter.notifyDataSetChanged();
-        Toast.makeText(getApplicationContext(), "Adapter set ....", Toast.LENGTH_SHORT).show();
+        TTSTask task = new TTSTask();
+        if(inputmessage != null && !inputmessage.isEmpty()) {
+            task.execute(new String[]{});
+
+            // this.inputMessage.setText("");
+            mAdapter.notifyDataSetChanged();
+            Toast.makeText(getApplicationContext(), "Adapter set ....", Toast.LENGTH_SHORT).show();
+            myLogger.info("Sending a message to Watson Conversation Service");
+//            ConversationTask cTask = new ConversationTask();
+//            cTask.execute(new String[]{});
+        }
+
+
+
+
 
 
 //        Thread thread = new Thread(new Runnable(){
@@ -358,26 +368,26 @@ public class MainActivity extends AppCompatActivity {
 //        new Thread(new Runnable() {
 //            @Override public void run() {
 //                try {
-                    Conversation service = new Conversation(Conversation.VERSION_DATE_2017_05_26);
-                    Toast.makeText(getApplicationContext(), "service set ...."+service, Toast.LENGTH_SHORT).show();
-                    service.setUsernameAndPassword(conversation_username, conversation_password);
-                    if(inputmessage != null && !inputmessage.isEmpty()) {
-                        InputData input = new InputData.Builder(inputmessage).build();
-                        MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).context(context).build();
-                        Toast.makeText(getApplicationContext(), "options set ...." + options, Toast.LENGTH_SHORT).show();
-                        service.message(options).enqueue(new ServiceCallback<MessageResponse>() {
-                            @Override
-                            public void onResponse(MessageResponse response) {
-                                //output to system log output, just for verification/checking
-                               Toast.makeText(getApplicationContext(), "response fetched ...." + response, Toast.LENGTH_SHORT).show();
-                            }
-                            @Override
-                            public void onFailure(Exception e) {
-                                Toast.makeText(getApplicationContext(), "response failed ...." + e, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                    }
+//                    Conversation service = new Conversation(Conversation.VERSION_DATE_2017_05_26);
+//                    Toast.makeText(getApplicationContext(), "service set ...."+service, Toast.LENGTH_SHORT).show();
+//                    service.setUsernameAndPassword(conversation_username, conversation_password);
+//                    if(inputmessage != null && !inputmessage.isEmpty()) {
+//                        InputData input = new InputData.Builder(inputmessage).build();
+//                        MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).context(context).build();
+//                        Toast.makeText(getApplicationContext(), "options set ...." + options, Toast.LENGTH_SHORT).show();
+//                        service.message(options).enqueue(new ServiceCallback<MessageResponse>() {
+//                            @Override
+//                            public void onResponse(MessageResponse response) {
+//                                //output to system log output, just for verification/checking
+//                               Toast.makeText(getApplicationContext(), "response fetched ...." + response, Toast.LENGTH_SHORT).show();
+//                            }
+//                            @Override
+//                            public void onFailure(Exception e) {
+//                                Toast.makeText(getApplicationContext(), "response failed ...." + e, Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//
+//                    }
 //                    //Passing Context of last conversation
 //                    if(response.getContext() !=null)
 //                    {
@@ -584,8 +594,54 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private class TTSTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... textToSpeak) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "tts running...." , Toast.LENGTH_SHORT).show();
+                }
+            });
 
+            //TextToSpeech textToSpeech = initTextToSpeechService();
+            streamPlayer = new StreamPlayer();
+            streamPlayer.playStream(textToSpeech.synthesize(String.valueOf(inputMessage.getText()), Voice.GB_KATE).execute());
 
+            return "text to speech done";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(),"TTS status: " + result, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class ConversationTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... question) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Conversation running...." , Toast.LENGTH_SHORT).show();
+
+                }
+            });
+            if(inputMessage != null && inputMessage.getText().toString() != null) {
+                InputData input = new InputData.Builder(inputMessage.getText().toString()).build();
+                MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).build();
+                Toast.makeText(getApplicationContext(), "options set ...." + options, Toast.LENGTH_SHORT).show();
+                MessageResponse response = conversation.message(options).execute();
+            }
+
+            return "text to speech done";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(),"Conversation status: " + result, Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 
 
