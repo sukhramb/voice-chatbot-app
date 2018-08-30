@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mContext = getApplicationContext();
-        conversation_username = mContext.getString(R.string.conversation_username);
-        conversation_password = mContext.getString(R.string.conversation_password);
-        workspace_id = mContext.getString(R.string.workspace_id);
+        conversation_username = "60a410a7-d135-45b9-9eac-c358b2ae3875";
+        conversation_password = "s4KFebGhWfNU";
+        workspace_id = "eab3fade-7b08-49e4-ab8a-5079e6b803a3";
         STT_username = mContext.getString(R.string.STT_username);
         STT_password = mContext.getString(R.string.STT_password);
         TTS_username = mContext.getString(R.string.TTS_username);
@@ -277,178 +277,16 @@ public class MainActivity extends AppCompatActivity {
         }
         TTSTask task = new TTSTask();
         if(inputmessage != null && !inputmessage.isEmpty()) {
-            task.execute(new String[]{});
+            task.execute(new String[]{inputmessage});
 
-            // this.inputMessage.setText("");
+            this.inputMessage.setText("");
             mAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(), "Adapter set ....", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "Adapter set ....", Toast.LENGTH_SHORT).show();
             myLogger.info("Sending a message to Watson Conversation Service");
-//            ConversationTask cTask = new ConversationTask();
-//            cTask.execute(new String[]{});
+            ConversationTask cTask = new ConversationTask();
+            cTask.execute(new String[]{inputmessage});
+            mAdapter.notifyDataSetChanged();
         }
-
-
-
-
-
-
-//        Thread thread = new Thread(new Runnable(){
-//            public void run() {
-//                try {
-//
-//                    Conversation service = new Conversation(Conversation.VERSION_DATE_2017_05_26);
-//                    Toast.makeText(getApplicationContext(), "service set ...."+service, Toast.LENGTH_SHORT).show();
-//                    service.setUsernameAndPassword(conversation_username, conversation_password);
-//                    InputData input = new InputData.Builder(inputmessage).build();
-//                    MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).context(context).build();
-//                    Toast.makeText(getApplicationContext(), "options set ...."+options, Toast.LENGTH_SHORT).show();
-//                    MessageResponse response = service.message(options).execute();
-//                    Toast.makeText(getApplicationContext(), "response feched ...."+response, Toast.LENGTH_SHORT).show();
-//                    //Passing Context of last conversation
-//                    if(response.getContext() !=null)
-//                    {
-//                        //context.clear();
-//                        context = response.getContext();
-//
-//                    }
-//                    final Message outMessage=new Message();
-//                    if(response!=null)
-//                    {
-//                        if(response.getOutput()!=null && response.getOutput().containsKey("text"))
-//                        {
-//
-//                            ArrayList responseList = (ArrayList) response.getOutput().get("text");
-//                            if(null !=responseList && responseList.size()>0){
-//                                outMessage.setMessage((String)responseList.get(0));
-//                                outMessage.setId("2");
-//                            }
-//                            messageArrayList.add(outMessage);
-//                            Thread thread = new Thread(new Runnable() {
-//                                public void run() {
-//                                    Message audioMessage;
-//                                    try {
-//
-//                                        audioMessage = outMessage;
-//                                        streamPlayer = new StreamPlayer();
-//                                        if(audioMessage != null && !audioMessage.getMessage().isEmpty())
-//                                            //Change the Voice format and choose from the available choices
-//                                            streamPlayer.playStream(textToSpeech.synthesize(audioMessage.getMessage(), Voice.EN_LISA).execute());
-//                                        else
-//                                            streamPlayer.playStream(textToSpeech.synthesize("No Text Specified", Voice.EN_LISA).execute());
-//
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            });
-//                            thread.start();
-//                        }
-//
-//                        runOnUiThread(new Runnable() {
-//                            public void run() {
-//                                mAdapter.notifyDataSetChanged();
-//                                if (mAdapter.getItemCount() > 1) {
-//                                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount()-1);
-//
-//                                }
-//
-//                            }
-//                        });
-//
-//
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        thread.start();
-
-//        new Thread(new Runnable() {
-//            @Override public void run() {
-//                try {
-//                    Conversation service = new Conversation(Conversation.VERSION_DATE_2017_05_26);
-//                    Toast.makeText(getApplicationContext(), "service set ...."+service, Toast.LENGTH_SHORT).show();
-//                    service.setUsernameAndPassword(conversation_username, conversation_password);
-//                    if(inputmessage != null && !inputmessage.isEmpty()) {
-//                        InputData input = new InputData.Builder(inputmessage).build();
-//                        MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).context(context).build();
-//                        Toast.makeText(getApplicationContext(), "options set ...." + options, Toast.LENGTH_SHORT).show();
-//                        service.message(options).enqueue(new ServiceCallback<MessageResponse>() {
-//                            @Override
-//                            public void onResponse(MessageResponse response) {
-//                                //output to system log output, just for verification/checking
-//                               Toast.makeText(getApplicationContext(), "response fetched ...." + response, Toast.LENGTH_SHORT).show();
-//                            }
-//                            @Override
-//                            public void onFailure(Exception e) {
-//                                Toast.makeText(getApplicationContext(), "response failed ...." + e, Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
-//
-//                    }
-//                    //Passing Context of last conversation
-//                    if(response.getContext() !=null)
-//                    {
-//                        //context.clear();
-//                        context = response.getContext();
-//
-//                    }
-//                    final Message outMessage=new Message();
-//                    if(response!=null)
-//                    {
-//                        if(response.getOutput()!=null && response.getOutput().containsKey("text"))
-//                        {
-//
-//                            ArrayList responseList = (ArrayList) response.getOutput().get("text");
-//                            if(null !=responseList && responseList.size()>0){
-//                                outMessage.setMessage((String)responseList.get(0));
-//                                outMessage.setId("2");
-//                            }
-//                            messageArrayList.add(outMessage);
-//                            Thread thread = new Thread(new Runnable() {
-//                                public void run() {
-//                                    Message audioMessage;
-//                                    try {
-//
-//                                        audioMessage = outMessage;
-//                                        streamPlayer = new StreamPlayer();
-//                                        if(audioMessage != null && !audioMessage.getMessage().isEmpty())
-//                                            //Change the Voice format and choose from the available choices
-//                                            streamPlayer.playStream(textToSpeech.synthesize(audioMessage.getMessage(), Voice.EN_LISA).execute());
-//                                        else
-//                                            streamPlayer.playStream(textToSpeech.synthesize("No Text Specified", Voice.EN_LISA).execute());
-//
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            });
-//                            thread.start();
-//                        }
-
-//                        runOnUiThread(new Runnable() {
-//                            public void run() {
-//                                mAdapter.notifyDataSetChanged();
-//                                if (mAdapter.getItemCount() > 1) {
-//                                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount()-1);
-//
-//                                }
-//
-//                            }
-//                        });
-
-
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//
-//
-//                }
-//            }
-//        }).start();
-
     }
 
     //Record a message via Watson Speech to Text
@@ -600,46 +438,68 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), "tts running...." , Toast.LENGTH_SHORT).show();
+       //             Toast.makeText(getApplicationContext(), "tts running...." , Toast.LENGTH_SHORT).show();
                 }
             });
 
             //TextToSpeech textToSpeech = initTextToSpeechService();
             streamPlayer = new StreamPlayer();
-            streamPlayer.playStream(textToSpeech.synthesize(String.valueOf(inputMessage.getText()), Voice.GB_KATE).execute());
+            streamPlayer.playStream(textToSpeech.synthesize(textToSpeak[0], Voice.GB_KATE).execute());
 
             return "text to speech done";
         }
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(),"TTS status: " + result, Toast.LENGTH_SHORT).show();
+   //         Toast.makeText(getApplicationContext(),"TTS status: " + result, Toast.LENGTH_SHORT).show();
         }
     }
 
     private class ConversationTask extends AsyncTask<String, Void, String> {
         @Override
-        protected String doInBackground(String... question) {
+        protected String doInBackground(final String... questions) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), "Conversation running...." , Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(getApplicationContext(), "Conversation running...."+questions[0] , Toast.LENGTH_SHORT).show();
 
                 }
             });
-            if(inputMessage != null && inputMessage.getText().toString() != null) {
-                InputData input = new InputData.Builder(inputMessage.getText().toString()).build();
+            Message outMessage=new Message();
+            if(inputMessage != null && inputMessage.getText() != null) {
+                InputData input = new InputData.Builder(questions[0]).build();
+
                 MessageOptions options = new MessageOptions.Builder(workspace_id).input(input).build();
-                Toast.makeText(getApplicationContext(), "options set ...." + options, Toast.LENGTH_SHORT).show();
-                MessageResponse response = conversation.message(options).execute();
+                if(context != null){
+                    options = new MessageOptions.Builder(workspace_id).input(input).context(context).build();
+                }
+ //            Toast.makeText(getApplicationContext(), "options set ....", Toast.LENGTH_SHORT).show();
+               MessageResponse response = conversation.message(options).execute();
+                if(response.getContext() !=null)
+                {
+                    //context.clear();
+                    context = response.getContext();
+
+                }
+
+                ArrayList responseList = (ArrayList) response.getOutput().get("text");
+                if(null !=responseList && responseList.size()>0){
+                    outMessage.setMessage((String)responseList.get(0));
+                    outMessage.setId("2");
+                }
+                messageArrayList.add(outMessage);
+
             }
 
-            return "text to speech done";
+            return outMessage.getMessage();
         }
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(),"Conversation status: " + result, Toast.LENGTH_SHORT).show();
+          // Toast.makeText(getApplicationContext(),"Conversation status: " + result, Toast.LENGTH_SHORT).show();
+           mAdapter.notifyDataSetChanged();
+           TTSTask task = new TTSTask();
+           task.execute(new String[]{result});
         }
     }
 }
